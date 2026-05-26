@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión de Salas - IT Support</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-sans: 'Inter', sans-serif;
+            --color-background-app: #f4f7f9;
+            --color-background-primary: #ffffff;
+            --color-background-secondary: #f0f4f8;
+            --color-border-tertiary: #e2e8f0;
+            --color-border-secondary: #cbd5e1;
+            --color-border-success: #10b981;
+            --color-border-danger: #ef4444;
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-text-tertiary: #94a3b8;
+            --color-text-success: #059669;
+            --color-text-danger: #dc2626;
+            --color-background-success: #d1fae5;
+            --color-background-danger: #fee2e2;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-background-app);
+            color: var(--color-text-primary);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wrap {
+            max-width: 800px;
+            width: 100%;
+            background: var(--color-background-primary);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .vista-lista {
+            display: none;
+        }
+
+        .vista-sala {
+            display: none;
+        }
+
+        .vista-lista.activa {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .vista-sala.activa {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border-secondary);
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-back:hover {
+            background: var(--color-background-secondary);
+            color: var(--color-text-primary);
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .page-sub {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .revisor-box {
+            background: var(--color-background-secondary);
+            padding: 1.2rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border-tertiary);
+        }
+
+        .revisor-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .revisor-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border-secondary);
+            font-size: 15px;
+            font-family: var(--font-sans);
+            transition: 0.2s;
+        }
+
+        .revisor-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .salas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .sala-card {
+            background: var(--color-background-primary);
+            border: 1px solid var(--color-border-tertiary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .sala-card:hover {
+            border-color: var(--color-border-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sala-card.completa {
+            border-color: var(--color-border-success);
+            background-color: #f8fafc;
+        }
+
+        .sala-card.con-fallas {
+            border-color: var(--color-border-danger);
+            background-color: #fffafb;
+        }
+
+        .sala-nombre {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sala-meta {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-ok {
+            background: var(--color-text-success);
+        }
+
+        .dot-fail {
+            background: var(--color-text-danger);
+        }
+
+        .dot-pending {
+            background: var(--color-text-tertiary);
+        }
+
+        .mini-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--color-border-tertiary);
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .mini-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--color-text-success);
+            transition: width .4s ease;
+        }
+
+        .mini-fill.con-falla {
+            background: var(--color-text-danger);
+        }
+
+        .resumen-global {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric {
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: 16px;
+            border: 1px solid var(--color-border-tertiary);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .metric-val {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .metric-val.ok {
+            color: var(--color-text-success);
+        }
+
+        .metric-val.fail {
+            color: var(--color-text-danger);
+        }
+
+        .seccion-titulo {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 1.5rem 0 10px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border-tertiary);
+            background: var(--color-background-primary);
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+
+        .item-row.estado-ok {
+            background: var(--color-background-success);
+            border-color: var(--color-border-success);
+        }
+
+        .item-row.estado-fail {
+            background: var(--color-background-danger);
+            border-color: var(--color-border-danger);
+        }
+
+        .item-ico {
+            font-size: 20px;
+            color: var(--color-text-secondary);
+            flex-shrink: 0;
+        }
+
+        .item-row.estado-ok .item-ico {
+            color: var(--color-text-success);
+        }
+
+        .item-row.estado-fail .item-ico {
+            color: var(--color-text-danger);
+        }
+
+        .item-txt {
+            flex: 1;
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+
+        .item-row.estado-ok .item-txt {
+            color: var(--color-text-success);
+            font-weight: 500;
+        }
+
+        .item-row.estado-fail .item-txt {
+            color: var(--color-text-danger);
+            font-weight: 500;
+        }
+
+        .item-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cbtn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--color-border-secondary);
+            background: var(--color-background-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            transition: all .2s;
+        }
+
+        .cbtn.tok:hover,
+        .cbtn.tok.sel {
+            background: var(--color-text-success);
+            color: white;
+            border-color: transparent;
+        }
+
+        .cbtn.tfail:hover,
+        .cbtn.tfail.sel {
+            background: var(--color-text-danger);
+            color: white;
+            border-color: transparent;
+        }
+
+        .prog-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--color-border-tertiary);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--color-text-success);
+            transition: width .4s ease;
+        }
+
+        .obs-area {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border-tertiary);
+            background: var(--color-background-secondary);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            padding: 12px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: var(--font-sans);
+        }
+
+        .footer-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-border-tertiary);
+        }
+
+        .btn-export {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--border-radius-md);
+            border: none;
+            background: #2563eb;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-cloud {
+            background: #10b981;
+        }
+
+        .btn-cloud:hover {
+            background: #059669;
+        }
+
+        .btn-sec {
+            padding: 10px 20px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border-tertiary);
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrap">
+        <div class="vista-lista activa" id="vistaLista">
+            <div style="margin-bottom:2rem">
+                <div class="page-title">Panel de Revisión de Salas</div>
+                <div class="page-sub" id="fechaHoy"></div>
+            </div>
+
+            <div class="revisor-box">
+                <label class="revisor-label" for="nombreRevisor">Responsable de la revisión</label>
+                <input type="text" class="revisor-input" id="nombreRevisor" placeholder="Escribe tu nombre completo...">
+            </div>
+
+            <div class="resumen-global">
+                <div class="metric">
+                    <div class="metric-label">Salas revisadas</div>
+                    <div class="metric-val" id="mRevisadas">0/6</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Sin fallas</div>
+                    <div class="metric-val ok" id="mOk">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Con fallas</div>
+                    <div class="metric-val fail" id="mFail">0</div>
+                </div>
+            </div>
+
+            <div class="salas-grid" id="salasGrid"></div>
+
+            <div class="footer-btns">
+                <button class="btn-export btn-cloud" onclick="enviarAExcelColaborativo()"><i
+                        class="ti ti-cloud-upload"></i> Enviar a Excel Compartido</button>
+                <button class="btn-export" onclick="exportarTxt()"><i class="ti ti-download"></i> Descargar Local
+                    (.txt)</button>
+                <button class="btn-sec" onclick="resetTodo()"><i class="ti ti-refresh"></i> Reiniciar todo</button>
+            </div>
+        </div>
+
+        <div class="vista-sala" id="vistaSala">
+            <div class="top-bar">
+                <button class="btn-back" onclick="volverLista()"><i class="ti ti-arrow-left"></i> Volver</button>
+                <div>
+                    <div class="page-title" id="salaNombreTitle"></div>
+                    <div class="page-sub" id="salaProgTexto"></div>
+                </div>
+            </div>
+            <div class="prog-bar">
+                <div class="prog-fill" id="progFill" style="width:0%"></div>
+            </div>
+            <div id="checklistArea"></div>
+            <div class="seccion-titulo">Observaciones</div>
+            <textarea class="obs-area" id="obsArea" placeholder="Notas sobre esta sala..."
+                oninput="guardarObs()"></textarea>
+            <div class="footer-btns">
+                <button class="btn-sec" onclick="resetSala()"><i class="ti ti-eraser"></i> Limpiar sala</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SALAS = [
+            "Ada Love Lace",
+            "Alan Turing",
+            "Alan Kay",
+            "Barbara Liscov",
+            "Sinco Lab",
+            "Arquímedes"
+        ];
+
+        const CHECKS = [
+            { id: "hdmi1", sec: "Adaptador HDMI", txt: "Adaptador HDMI presente en la sala", ico: "ti-plug-connected" },
+            { id: "hdmi2", sec: "Adaptador HDMI", txt: "Adaptador conecta correctamente al portátil", ico: "ti-plug-connected" },
+            { id: "hdmi3", sec: "Adaptador HDMI", txt: "Imagen se proyecta sin problemas", ico: "ti-screen-share" },
+            { id: "tv1", sec: "Televisor", txt: "Televisor enciende correctamente", ico: "ti-device-tv" },
+            { id: "tv2", sec: "Televisor", txt: "Control remoto funciona y tiene batería", ico: "ti-device-remote" },
+            { id: "tv3", sec: "Televisor", txt: "Imagen nítida, sin píxeles muertos", ico: "ti-device-tv" },
+            { id: "tv4", sec: "Televisor", txt: "Audio del televisor funciona", ico: "ti-volume" },
+            { id: "tv5", sec: "Televisor", txt: "Puerto HDMI del televisor funciona", ico: "ti-plug-connected" },
+            { id: "aire1", sec: "Aire Acondicionado", txt: "Aire acondicionado enciende correctamente", ico: "ti-air-conditioning" },
+            { id: "aire2", sec: "Aire Acondicionado", txt: "Temperatura regulable sin inconvenientes", ico: "ti-temperature" },
+            { id: "gen1", sec: "General", txt: "Sillas suficientes y en buen estado", ico: "ti-armchair" },
+            { id: "gen2", sec: "General", txt: "Sala limpia y ordenada", ico: "ti-sparkles" },
+            { id: "gen3", sec: "General", txt: "Iluminación adecuada", ico: "ti-bulb" }
+        ];
+
+        let state = {};
+        let salaCurrent = 0;
+
+        function initState() {
+            SALAS.forEach((_, i) => {
+                if (!state[i]) state[i] = { checks: {}, obs: "" };
+                CHECKS.forEach(c => { if (state[i].checks[c.id] === undefined) state[i].checks[c.id] = null; });
+            });
+        }
+
+        function getSecs() {
+            const s = {};
+            CHECKS.forEach(c => { if (!s[c.sec]) s[c.sec] = []; s[c.sec].push(c); });
+            return s;
+        }
+
+        function salaStats(i) {
+            const ch = state[i].checks;
+            const vals = Object.values(ch);
+            const done = vals.filter(v => v !== null).length;
+            const total = vals.length;
+            const fallas = vals.filter(v => v === false).length;
+            return { done, total, fallas, pct: total ? Math.round(done / total * 100) : 0 };
+        }
+
+        function renderLista() {
+            const grid = document.getElementById('salasGrid');
+            grid.innerHTML = SALAS.map((s, i) => {
+                const { done, total, fallas, pct } = salaStats(i);
+                const completa = done === total;
+                const cls = completa ? (fallas > 0 ? 'con-fallas' : 'completa') : '';
+                const dotCls = done === 0 ? 'dot-pending' : (fallas > 0 ? 'dot-fail' : 'dot-ok');
+                const estado = done === 0 ? 'Sin revisar' : (completa ? (fallas > 0 ? `${fallas} falla(s)` : 'Todo Funcional') : `${done}/${total} ítems`);
+                const fillCls = fallas > 0 ? 'con-falla' : '';
+                return `<div class="sala-card ${cls}" onclick="abrirSala(${i})">
+      <div class="sala-nombre"><i class="ti ti-door" style="font-size:18px;margin-right:8px"></i>${s}</div>
+      <div class="sala-meta"><span class="dot ${dotCls}"></span>${estado}</div>
+      <div class="mini-bar"><div class="mini-fill ${fillCls}" style="width:${pct}%"></div></div>
+    </div>`;
+            }).join('');
+            updateMetrics();
+        }
+
+        function updateMetrics() {
+            const rev = SALAS.filter((_, i) => { const { done, total } = salaStats(i); return done === total; }).length;
+            const ok = SALAS.filter((_, i) => { const { done, total, fallas } = salaStats(i); return done === total && fallas === 0; }).length;
+            const fail = SALAS.filter((_, i) => { const { done, total, fallas } = salaStats(i); return done === total && fallas > 0; }).length;
+            document.getElementById('mRevisadas').textContent = `${rev}/${SALAS.length}`;
+            document.getElementById('mOk').textContent = ok;
+            document.getElementById('mFail').textContent = fail;
+        }
+
+        function abrirSala(i) {
+            salaCurrent = i;
+            document.getElementById('vistaLista').classList.remove('activa');
+            document.getElementById('vistaSala').classList.add('activa');
+            document.getElementById('salaNombreTitle').textContent = SALAS[i];
+            document.getElementById('obsArea').value = state[i].obs || '';
+            renderChecklist();
+        }
+
+        function volverLista() {
+            document.getElementById('vistaSala').classList.remove('activa');
+            document.getElementById('vistaLista').classList.add('activa');
+            renderLista();
+        }
+
+        function renderChecklist() {
+            const secs = getSecs();
+            const ch = state[salaCurrent].checks;
+            let html = '';
+            for (const [sec, items] of Object.entries(secs)) {
+                html += `<div class="seccion-titulo">${sec}</div>`;
+                items.forEach(c => {
+                    const v = ch[c.id];
+                    const cls = v === true ? 'estado-ok' : v === false ? 'estado-fail' : '';
+                    html += `<div class="item-row ${cls}">
+        <i class="ti ${c.ico} item-ico"></i>
+        <span class="item-txt">${c.txt}</span>
+        <div class="item-btns">
+          <button class="cbtn tok ${v === true ? 'sel' : ''}" onclick="setCheck('${c.id}',true,event)"><i class="ti ti-check"></i> Funcional</button>
+          <button class="cbtn tfail ${v === false ? 'sel' : ''}" onclick="setCheck('${c.id}',false,event)"><i class="ti ti-x"></i> Dañado</button>
+        </div>
+      </div>`;
+                });
+            }
+            document.getElementById('checklistArea').innerHTML = html;
+            updateProg();
+        }
+
+        function setCheck(id, val, e) {
+            e.stopPropagation();
+            const cur = state[salaCurrent].checks[id];
+            state[salaCurrent].checks[id] = cur === val ? null : val;
+            renderChecklist();
+        }
+
+        function updateProg() {
+            const { done, total, fallas, pct } = salaStats(salaCurrent);
+            document.getElementById('progFill').style.width = pct + '%';
+            document.getElementById('salaProgTexto').textContent = `${done} de ${total} ítems revisados${fallas > 0 ? ' · ' + fallas + ' falla(s)' : ''}`;
+        }
+
+        function guardarObs() { state[salaCurrent].obs = document.getElementById('obsArea').value; }
+
+        function resetSala() {
+            CHECKS.forEach(c => { state[salaCurrent].checks[c.id] = null; });
+            state[salaCurrent].obs = '';
+            document.getElementById('obsArea').value = '';
+            renderChecklist();
+        }
+
+        function resetTodo() {
+            if (confirm("¿Estás seguro de que quieres borrar todos los datos?")) {
+                state = {};
+                document.getElementById('nombreRevisor').value = "";
+                initState();
+                renderLista();
+            }
+        }
+
+        function buildReporteSala(i) {
+            const s = SALAS[i];
+            const ch = state[i].checks;
+            const obs = state[i].obs;
+            const { done, total, fallas } = salaStats(i);
+            const fecha = document.getElementById('fechaHoy').textContent;
+            let txt = `REVISIÓN DE SALA — ${fecha}\nSala: ${s}\nResultado: ${done}/${total} revisados · ${fallas} falla(s)\n${'─'.repeat(44)}\n`;
+            const secs = getSecs();
+            for (const [sec, items] of Object.entries(secs)) {
+                txt += `\n${sec}\n`;
+                items.forEach(c => {
+                    const v = ch[c.id];
+                    const est = v === true ? '✓ FUNCIONAL' : v === false ? '✗ DAÑADO' : '◌ Sin revisar';
+                    txt += `  ${est}  ${c.txt}\n`;
+                });
+            }
+            if (obs) { txt += `\nObservaciones:\n  ${obs}\n`; }
+            return txt;
+        }
+
+        function exportarTxt() {
+            const fecha = document.getElementById('fechaHoy').textContent;
+            let txt = `REPORTE GENERAL DE REVISIÓN — ${fecha}\n${'═'.repeat(44)}\n`;
+            SALAS.forEach((_, i) => { txt += '\n' + buildReporteSala(i) + '\n'; });
+            descargar(txt, 'reporte_revision_salas.txt');
+        }
+
+        function descargar(txt, nombre) {
+            const a = document.createElement('a');
+            a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txt);
+            a.download = nombre;
+            a.click();
+        }
+
+        async function enviarAExcelColaborativo() {
+            const revisor = document.getElementById('nombreRevisor').value.trim();
+
+            if (!revisor) {
+                alert("Por favor, ingresa tu nombre como revisor antes de enviar.");
+                document.getElementById('nombreRevisor').focus();
+                return;
+            }
+
+            const btn = document.querySelector('.btn-cloud');
+            const btnOriginalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
+            btn.disabled = true;
+
+            const payload = {
+                fecha: new Date().toLocaleString('es-CO'),
+                revisor: revisor,
+                datosSalas: SALAS.map((nombre, i) => {
+                    const stats = salaStats(i);
+                    return {
+                        sala: nombre,
+                        revisados: stats.done,
+                        total: stats.total,
+                        fallas: stats.fallas,
+                        observaciones: state[i].obs || "Ninguna"
+                    };
+                })
+            };
+
+            const webhookUrl = 'https://defaultbcb4bc41e8544f10b906d1643d45e3.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3f37b311ff3c493f91a8ee9756d1a550/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=eiJN6e7PzKtUIEB5vQLA6-63UsSnuvq6zrR9PouuuS0';
+
+            try {
+                const respuesta = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (respuesta.ok || respuesta.status === 202) {
+                    alert("¡Reporte sincronizado con éxito!");
+                } else {
+                    throw new Error("Error en el servidor");
+                }
+            } catch (error) {
+                alert("Error de conexión. Verifica que la URL del Webhook esté configurada.");
+            } finally {
+                btn.innerHTML = btnOriginalText;
+                btn.disabled = false;
+            }
+        }
+
+        initState();
+        const h = new Date();
+        document.getElementById('fechaHoy').textContent = h.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        renderLista();
+    </script>
+</body>
+
+</html>
